@@ -5,7 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
-	utils "github.com/pisondev/supply-management-api/pkg"
+	"github.com/pisondev/supply-management-api/internal/config"
+	"github.com/pisondev/supply-management-api/utils"
 )
 
 func main() {
@@ -13,17 +14,27 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Warn("failed to load .env file, back to system environment variables")
+		log.Warn("failed to load .env file, falling back to system environment variables")
 	}
 
-	app := fiber.New()
+	db := config.SetupDatabase(log)
+	_ = db
+
+	app := fiber.New(fiber.Config{
+		ErrorHandler: utils.ErrorHandler(log),
+	})
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		log.Info("health check endpoint accessed")
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"status":  "success",
-			"message": "supply management api is running properly",
+		return c.Status(fiber.StatusOK).JSON(utils.WebResponse{
+			Code:    fiber.StatusOK,
+			Status:  "success",
+			Message: "supply management api is running properly",
 		})
+	})
+
+	app.Get("/error-test", func(c *fiber.Ctx) error {
+		return fiber.NewError(fiber.StatusBadRequest, "this is a simulated bad request")
 	})
 
 	port := os.Getenv("PORT")
