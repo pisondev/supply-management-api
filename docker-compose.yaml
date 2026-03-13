@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: supply_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: supply_management_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: supply_api
+    restart: on-failure
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=rootpassword
+      - DB_NAME=supply_management_db
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

@@ -1,0 +1,9 @@
+bin/
+*.exe
+*.exe~
+*.test
+*.out
+
+.env
+postgres_data/
+.vscode/
