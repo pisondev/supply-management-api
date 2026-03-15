@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/pisondev/supply-management-api/internal/config"
+	"github.com/pisondev/supply-management-api/internal/module/ingredient"
 	"github.com/pisondev/supply-management-api/internal/module/inventory"
 	"github.com/pisondev/supply-management-api/utils"
 )
@@ -24,12 +25,17 @@ func main() {
 	inventoryService := inventory.NewService(inventoryRepo, db)
 	inventoryController := inventory.NewController(inventoryService, log)
 
+	ingredientRepo := ingredient.NewRepository(db)
+	ingredientService := ingredient.NewService(ingredientRepo)
+	ingredientController := ingredient.NewController(ingredientService, log)
+
 	app := fiber.New(fiber.Config{
 		ErrorHandler: utils.ErrorHandler(log),
 	})
 
 	api := app.Group("/api/v1")
 	inventory.RegisterRoutes(api, inventoryController)
+	ingredient.RegisterRoutes(api, ingredientController)
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		log.Info("health check endpoint accessed")
