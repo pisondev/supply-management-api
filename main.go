@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/pisondev/supply-management-api/internal/config"
+	"github.com/pisondev/supply-management-api/internal/module/inventory"
 	"github.com/pisondev/supply-management-api/utils"
 )
 
@@ -18,11 +19,17 @@ func main() {
 	}
 
 	db := config.SetupDatabase(log)
-	_ = db
+
+	inventoryRepo := inventory.NewRepository(db)
+	inventoryService := inventory.NewService(inventoryRepo, db)
+	inventoryController := inventory.NewController(inventoryService, log)
 
 	app := fiber.New(fiber.Config{
 		ErrorHandler: utils.ErrorHandler(log),
 	})
+
+	api := app.Group("/api/v1")
+	inventory.RegisterRoutes(api, inventoryController)
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		log.Info("health check endpoint accessed")
@@ -31,10 +38,6 @@ func main() {
 			Status:  "success",
 			Message: "supply management api is running properly",
 		})
-	})
-
-	app.Get("/error-test", func(c *fiber.Ctx) error {
-		return fiber.NewError(fiber.StatusBadRequest, "this is a simulated bad request")
 	})
 
 	port := os.Getenv("PORT")
