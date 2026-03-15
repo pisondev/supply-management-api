@@ -3,15 +3,17 @@ package inventory
 import (
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
-// interface
 type Service interface {
 	RecordMovement(req *RecordMovementRequest) (*InventoryMovement, error)
+	GetStocks(filter *StockFilterParam) (*PaginatedResult, error)
+	GetMovements(filter *MovementFilterParam) (*PaginatedResult, error)
 }
 
 type service struct {
@@ -20,7 +22,6 @@ type service struct {
 	validate *validator.Validate
 }
 
-// constructor
 func NewService(repo Repository, db *gorm.DB) Service {
 	return &service{
 		repo:     repo,
@@ -114,4 +115,52 @@ func (s *service) RecordMovement(req *RecordMovementRequest) (*InventoryMovement
 	}
 
 	return newMovement, nil
+}
+
+func setPaginationDefaults(page, limit int) (int, int) {
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 10
+	}
+	return page, limit
+}
+
+func (s *service) GetStocks(filter *StockFilterParam) (*PaginatedResult, error) {
+	filter.Page, filter.Limit = setPaginationDefaults(filter.Page, filter.Limit)
+
+	stocks, total, err := s.repo.FindStocks(filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch stocks: %w", err)
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(filter.Limit)))
+
+	return &PaginatedResult{
+		Items:      stocks,
+		Total:      total,
+		Page:       filter.Page,
+		Limit:      filter.Limit,
+		TotalPages: totalPages,
+	}, nil
+}
+
+func (s *service) GetMovements(filter *MovementFilterParam) (*PaginatedResult, error) {
+	filter.Page, filter.Limit = setPaginationDefaults(filter.Page, filter.Limit)
+
+	movements, total, err := s.repo.FindMovements(filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch movements: %w", err)
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(filter.Limit)))
+
+	return &PaginatedResult{
+		Items:      movements,
+		Total:      total,
+		Page:       filter.Page,
+		Limit:      filter.Limit,
+		TotalPages: totalPages,
+	}, nil
 }

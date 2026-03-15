@@ -9,3 +9,27 @@ type RecordMovementRequest struct {
 	ReferenceCode string  `json:"reference_code,omitempty"`
 	Notes         string  `json:"notes,omitempty"`
 }
+
+type PaginationParam struct {
+	Page  int `query:"page"`
+	Limit int `query:"limit"`
+}
+
+type StockFilterParam struct {
+	PaginationParam
+	WarehouseID int `query:"warehouse_id"`
+}
+
+type MovementFilterParam struct {
+	PaginationParam
+	WarehouseID  int    `query:"warehouse_id"`
+	MovementType string `query:"movement_type"`
+}
+
+type PaginatedResult struct {
+	Items      interface{} `json:"items"`
+	Total      int64       `json:"total"`
+	Page       int         `json:"page"`
+	Limit      int         `json:"limit"`
+	TotalPages int         `json:"total_pages"`
+}
