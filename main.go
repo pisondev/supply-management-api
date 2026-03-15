@@ -2,8 +2,11 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/joho/godotenv"
 	"github.com/pisondev/supply-management-api/internal/config"
 	"github.com/pisondev/supply-management-api/internal/module/ingredient"
@@ -47,6 +50,29 @@ func main() {
 	app := fiber.New(fiber.Config{
 		ErrorHandler: utils.ErrorHandler(log),
 	})
+
+	// CORS
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowMethods: "GET, POST, PUT, DELETE",
+	}))
+
+	// Rate Limiter
+	app.Use(limiter.New(limiter.Config{
+		Max:        100,
+		Expiration: 1 * time.Minute,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.IP()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(utils.WebResponse{
+				Code:    fiber.StatusTooManyRequests,
+				Status:  "error",
+				Message: "too many request, please try again later",
+			})
+		},
+	}))
 
 	// Register Semua Routes
 	api := app.Group("/api/v1")
