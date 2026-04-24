@@ -6,7 +6,8 @@ import (
 )
 
 type Repository interface {
-	GetStock(warehouseID int, ingredientID string) (*Inventory, error)
+	AcquireStockLockWithTx(tx *gorm.DB, warehouseID int, ingredientID string) error
+	GetStockWithTx(tx *gorm.DB, warehouseID int, ingredientID string) (*Inventory, error)
 	InsertMovementWithTx(tx *gorm.DB, movement *InventoryMovement) error
 	UpsertInventoryWithTx(tx *gorm.DB, inv *Inventory) error
 
@@ -22,9 +23,13 @@ func NewRepository(db *gorm.DB) Repository {
 	return &repository{db}
 }
 
-func (r *repository) GetStock(warehouseID int, ingredientID string) (*Inventory, error) {
+func (r *repository) AcquireStockLockWithTx(tx *gorm.DB, warehouseID int, ingredientID string) error {
+	return tx.Exec("SELECT pg_advisory_xact_lock(?, hashtext(?))", warehouseID, ingredientID).Error
+}
+
+func (r *repository) GetStockWithTx(tx *gorm.DB, warehouseID int, ingredientID string) (*Inventory, error) {
 	var inv Inventory
-	err := r.db.Where("warehouse_id = ? AND ingredient_id = ?", warehouseID, ingredientID).First(&inv).Error
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("warehouse_id = ? AND ingredient_id = ?", warehouseID, ingredientID).First(&inv).Error
 	return &inv, err
 }
 

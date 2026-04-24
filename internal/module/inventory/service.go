@@ -45,7 +45,11 @@ func (s *service) RecordMovement(req *RecordMovementRequest) (*InventoryMovement
 	var newMovement *InventoryMovement
 
 	err := s.db.Transaction(func(tx *gorm.DB) error {
-		currentInv, err := s.repo.GetStock(req.WarehouseID, req.IngredientID)
+		if err := s.repo.AcquireStockLockWithTx(tx, req.WarehouseID, req.IngredientID); err != nil {
+			return fmt.Errorf("failed to acquire inventory lock: %w", err)
+		}
+
+		currentInv, err := s.repo.GetStockWithTx(tx, req.WarehouseID, req.IngredientID)
 
 		var currentStock float64 = 0
 		if err != nil {
