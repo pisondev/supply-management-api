@@ -3,6 +3,7 @@ bin/
 *.exe~
 *.test
 *.out
+schema_dump.sql
 
 .env
 postgres_data/
