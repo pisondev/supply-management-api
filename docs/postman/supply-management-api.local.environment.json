@@ -1,0 +1,231 @@
+{
+  "id": "d5c7af1e-8be9-4e35-b90d-6f8803c98a11",
+  "name": "Supply Management API - Local",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "api_v1",
+      "value": "{{base_url}}/api/v1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "warehouse_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "warehouse_name",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "warehouse_location",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "warehouse_updated_name",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "warehouse_updated_location",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "ingredient_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "ingredient_sku",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "ingredient_name",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "ingredient_unit_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "ingredient_is_perishable",
+      "value": "true",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "ingredient_updated_name",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "ingredient_updated_unit_id",
+      "value": "2",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "ingredient_updated_is_perishable",
+      "value": "false",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "supplier_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "supplier_name",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "supplier_contact_person",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "supplier_phone",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "supplier_address",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "supplier_status",
+      "value": "active",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "supplier_updated_name",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "supplier_updated_contact_person",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "supplier_updated_phone",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "supplier_updated_address",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "supplier_updated_status",
+      "value": "inactive",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "inventory_seed_warehouse_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "inventory_seed_ingredient_id",
+      "value": "b1111111-1111-1111-1111-111111111111",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "inventory_seed_supplier_id",
+      "value": "a1111111-1111-1111-1111-111111111111",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "inventory_page",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "inventory_limit",
+      "value": "10",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "inventory_in_quantity",
+      "value": "10",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "inventory_out_quantity",
+      "value": "2",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "inventory_adjustment_quantity",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "inventory_reference_in",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "inventory_reference_out",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "inventory_reference_adjustment",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2026-04-24T15:11:04+07:00",
+  "_postman_exported_using": "Kilo Code"
+}

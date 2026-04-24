@@ -1,0 +1,420 @@
+{
+  "info": {
+    "_postman_id": "ca89533d-3ef7-464f-a329-4f0f8f5fd51e",
+    "name": "04 Inventory",
+    "description": "Tahap 04 untuk QA: cek stok dan uji inventory movements menggunakan data seed bawaan database. Jalankan dari atas ke bawah.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET Seed Warehouse Stocks",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Stocks response memiliki items', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data).to.exist;",
+              "  pm.expect(json.data.items).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/inventory/stocks?page={{inventory_page}}&limit={{inventory_limit}}&warehouse_id={{inventory_seed_warehouse_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "inventory",
+            "stocks"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "{{inventory_page}}"
+            },
+            {
+              "key": "limit",
+              "value": "{{inventory_limit}}"
+            },
+            {
+              "key": "warehouse_id",
+              "value": "{{inventory_seed_warehouse_id}}"
+            }
+          ]
+        },
+        "description": "Mengambil daftar stok untuk warehouse seed ID 1 sebagai baseline sebelum movement baru dibuat."
+      },
+      "response": []
+    },
+    {
+      "name": "POST Record Movement IN",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set('inventory_reference_in', `QA-IN-${Date.now()}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Movement IN tercatat', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data.movement_type).to.eql('IN');",
+              "  pm.expect(json.data.reference_code).to.eql(pm.environment.get('inventory_reference_in'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"warehouse_id\": {{inventory_seed_warehouse_id}},\n  \"ingredient_id\": \"{{inventory_seed_ingredient_id}}\",\n  \"supplier_id\": \"{{inventory_seed_supplier_id}}\",\n  \"movement_type\": \"IN\",\n  \"quantity\": {{inventory_in_quantity}},\n  \"reference_code\": \"{{inventory_reference_in}}\",\n  \"notes\": \"QA stock in using seeded supplier and ingredient\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_v1}}/inventory/movements",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "inventory",
+            "movements"
+          ]
+        },
+        "description": "Mencatat stock IN untuk item seed. Endpoint ini mensyaratkan supplier_id ada saat movement_type = IN."
+      },
+      "response": []
+    },
+    {
+      "name": "GET Stocks After IN",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Stocks response setelah IN tetap valid', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data.items).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/inventory/stocks?page={{inventory_page}}&limit={{inventory_limit}}&warehouse_id={{inventory_seed_warehouse_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "inventory",
+            "stocks"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "{{inventory_page}}"
+            },
+            {
+              "key": "limit",
+              "value": "{{inventory_limit}}"
+            },
+            {
+              "key": "warehouse_id",
+              "value": "{{inventory_seed_warehouse_id}}"
+            }
+          ]
+        },
+        "description": "Mengambil stok lagi setelah movement IN berhasil direkam."
+      },
+      "response": []
+    },
+    {
+      "name": "POST Record Movement OUT",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set('inventory_reference_out', `QA-OUT-${Date.now()}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Movement OUT tercatat', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data.movement_type).to.eql('OUT');",
+              "  pm.expect(json.data.reference_code).to.eql(pm.environment.get('inventory_reference_out'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"warehouse_id\": {{inventory_seed_warehouse_id}},\n  \"ingredient_id\": \"{{inventory_seed_ingredient_id}}\",\n  \"movement_type\": \"OUT\",\n  \"quantity\": {{inventory_out_quantity}},\n  \"reference_code\": \"{{inventory_reference_out}}\",\n  \"notes\": \"QA stock out using seeded inventory\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_v1}}/inventory/movements",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "inventory",
+            "movements"
+          ]
+        },
+        "description": "Mencatat stock OUT. Body sengaja tidak mengirim supplier_id karena untuk OUT nilainya harus null/absent."
+      },
+      "response": []
+    },
+    {
+      "name": "GET OUT Movements",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Movements OUT response memiliki items', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data).to.exist;",
+              "  pm.expect(json.data.items).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/inventory/movements?page={{inventory_page}}&limit={{inventory_limit}}&warehouse_id={{inventory_seed_warehouse_id}}&movement_type=OUT",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "inventory",
+            "movements"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "{{inventory_page}}"
+            },
+            {
+              "key": "limit",
+              "value": "{{inventory_limit}}"
+            },
+            {
+              "key": "warehouse_id",
+              "value": "{{inventory_seed_warehouse_id}}"
+            },
+            {
+              "key": "movement_type",
+              "value": "OUT"
+            }
+          ]
+        },
+        "description": "Mengambil daftar movement yang difilter hanya untuk tipe OUT."
+      },
+      "response": []
+    },
+    {
+      "name": "POST Record Movement ADJUSTMENT",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.environment.set('inventory_reference_adjustment', `QA-ADJ-${Date.now()}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Movement ADJUSTMENT tercatat', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data.movement_type).to.eql('ADJUSTMENT');",
+              "  pm.expect(json.data.reference_code).to.eql(pm.environment.get('inventory_reference_adjustment'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"warehouse_id\": {{inventory_seed_warehouse_id}},\n  \"ingredient_id\": \"{{inventory_seed_ingredient_id}}\",\n  \"movement_type\": \"ADJUSTMENT\",\n  \"quantity\": {{inventory_adjustment_quantity}},\n  \"reference_code\": \"{{inventory_reference_adjustment}}\",\n  \"notes\": \"QA stock adjustment using seeded inventory\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_v1}}/inventory/movements",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "inventory",
+            "movements"
+          ]
+        },
+        "description": "Mencatat adjustment stok. Di implementasi saat ini adjustment mengurangi stok sejumlah quantity yang dikirim."
+      },
+      "response": []
+    },
+    {
+      "name": "GET All Movements Seed Warehouse",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Movements response memiliki items', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data).to.exist;",
+              "  pm.expect(json.data.items).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/inventory/movements?page={{inventory_page}}&limit={{inventory_limit}}&warehouse_id={{inventory_seed_warehouse_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "inventory",
+            "movements"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "{{inventory_page}}"
+            },
+            {
+              "key": "limit",
+              "value": "{{inventory_limit}}"
+            },
+            {
+              "key": "warehouse_id",
+              "value": "{{inventory_seed_warehouse_id}}"
+            }
+          ]
+        },
+        "description": "Mengambil semua movement untuk warehouse seed setelah request IN, OUT, dan ADJUSTMENT dijalankan."
+      },
+      "response": []
+    }
+  ],
+  "event": [],
+  "variable": []
+}

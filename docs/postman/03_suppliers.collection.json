@@ -1,0 +1,263 @@
+{
+  "info": {
+    "_postman_id": "43d11c14-f7ed-4f25-acbe-11ef5d56f0f1",
+    "name": "03 Suppliers",
+    "description": "Tahap 03 untuk QA: CRUD suppliers. Gunakan environment yang sama dan jalankan dari atas ke bawah.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "POST Create Supplier",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now();",
+              "pm.environment.set('supplier_name', `QA Supplier ${suffix}`);",
+              "pm.environment.set('supplier_contact_person', `QA Contact ${suffix}`);",
+              "pm.environment.set('supplier_phone', `0812${String(suffix).slice(-8)}`);",
+              "pm.environment.set('supplier_address', `QA Address ${suffix}`);",
+              "pm.environment.set('supplier_status', 'active');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "if (json && json.data && json.data.id) {",
+              "  pm.environment.set('supplier_id', json.data.id);",
+              "}",
+              "",
+              "pm.test('Supplier ID tersimpan', function () {",
+              "  pm.expect(pm.environment.get('supplier_id')).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{supplier_name}}\",\n  \"contact_person\": \"{{supplier_contact_person}}\",\n  \"phone\": \"{{supplier_phone}}\",\n  \"address\": \"{{supplier_address}}\",\n  \"status\": \"{{supplier_status}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_v1}}/suppliers",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "suppliers"
+          ]
+        },
+        "description": "Membuat supplier baru. Status valid hanya active atau inactive."
+      },
+      "response": []
+    },
+    {
+      "name": "GET All Suppliers",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response data exists', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/suppliers",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "suppliers"
+          ]
+        },
+        "description": "Mengambil seluruh data suppliers."
+      },
+      "response": []
+    },
+    {
+      "name": "GET Supplier By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Supplier sesuai ID yang disimpan', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(String(json.data.id)).to.eql(String(pm.environment.get('supplier_id')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/suppliers/{{supplier_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "suppliers",
+            "{{supplier_id}}"
+          ]
+        },
+        "description": "Mengambil detail supplier berdasarkan ID hasil create."
+      },
+      "response": []
+    },
+    {
+      "name": "PUT Update Supplier",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now();",
+              "pm.environment.set('supplier_updated_name', `QA Supplier Updated ${suffix}`);",
+              "pm.environment.set('supplier_updated_contact_person', `QA Contact Updated ${suffix}`);",
+              "pm.environment.set('supplier_updated_phone', `0821${String(suffix).slice(-8)}`);",
+              "pm.environment.set('supplier_updated_address', `QA Address Updated ${suffix}`);",
+              "pm.environment.set('supplier_updated_status', 'inactive');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Supplier berhasil diupdate', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data.name).to.eql(pm.environment.get('supplier_updated_name'));",
+              "  pm.expect(json.data.status).to.eql(pm.environment.get('supplier_updated_status'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{supplier_updated_name}}\",\n  \"contact_person\": \"{{supplier_updated_contact_person}}\",\n  \"phone\": \"{{supplier_updated_phone}}\",\n  \"address\": \"{{supplier_updated_address}}\",\n  \"status\": \"{{supplier_updated_status}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_v1}}/suppliers/{{supplier_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "suppliers",
+            "{{supplier_id}}"
+          ]
+        },
+        "description": "Mengubah supplier yang dibuat pada step sebelumnya. Pada update, status wajib dikirim dan harus active atau inactive."
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE Supplier",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.environment.unset('supplier_id');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/suppliers/{{supplier_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "suppliers",
+            "{{supplier_id}}"
+          ]
+        },
+        "description": "Menghapus supplier yang dibuat oleh flow QA ini. Jalankan di akhir tahap 03."
+      },
+      "response": []
+    }
+  ],
+  "event": [],
+  "variable": []
+}

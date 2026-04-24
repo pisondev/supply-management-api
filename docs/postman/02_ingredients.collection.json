@@ -1,0 +1,259 @@
+{
+  "info": {
+    "_postman_id": "0e86b09b-c2b3-4c42-84a2-d90be6c2acaf",
+    "name": "02 Ingredients",
+    "description": "Tahap 02 untuk QA: CRUD ingredients. Gunakan environment yang sama dan jalankan dari atas ke bawah.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "POST Create Ingredient",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now();",
+              "pm.environment.set('ingredient_sku', `QA-ING-${suffix}`);",
+              "pm.environment.set('ingredient_name', `QA Ingredient ${suffix}`);",
+              "pm.environment.set('ingredient_unit_id', '1');",
+              "pm.environment.set('ingredient_is_perishable', 'true');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "if (json && json.data && json.data.id) {",
+              "  pm.environment.set('ingredient_id', json.data.id);",
+              "}",
+              "",
+              "pm.test('Ingredient ID tersimpan', function () {",
+              "  pm.expect(pm.environment.get('ingredient_id')).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sku\": \"{{ingredient_sku}}\",\n  \"name\": \"{{ingredient_name}}\",\n  \"unit_id\": {{ingredient_unit_id}},\n  \"is_perishable\": {{ingredient_is_perishable}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_v1}}/ingredients",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ingredients"
+          ]
+        },
+        "description": "Membuat ingredient baru. Membutuhkan unit_id valid dari tabel units seed, default dipakai 1."
+      },
+      "response": []
+    },
+    {
+      "name": "GET All Ingredients",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response data exists', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/ingredients",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ingredients"
+          ]
+        },
+        "description": "Mengambil seluruh data ingredients."
+      },
+      "response": []
+    },
+    {
+      "name": "GET Ingredient By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Ingredient sesuai ID yang disimpan', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(String(json.data.id)).to.eql(String(pm.environment.get('ingredient_id')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/ingredients/{{ingredient_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ingredients",
+            "{{ingredient_id}}"
+          ]
+        },
+        "description": "Mengambil detail ingredient berdasarkan ID hasil create."
+      },
+      "response": []
+    },
+    {
+      "name": "PUT Update Ingredient",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now();",
+              "pm.environment.set('ingredient_updated_name', `QA Ingredient Updated ${suffix}`);",
+              "pm.environment.set('ingredient_updated_unit_id', '2');",
+              "pm.environment.set('ingredient_updated_is_perishable', 'false');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Ingredient berhasil diupdate', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data.name).to.eql(pm.environment.get('ingredient_updated_name'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{ingredient_updated_name}}\",\n  \"unit_id\": {{ingredient_updated_unit_id}},\n  \"is_perishable\": {{ingredient_updated_is_perishable}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_v1}}/ingredients/{{ingredient_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ingredients",
+            "{{ingredient_id}}"
+          ]
+        },
+        "description": "Mengubah ingredient yang dibuat pada step sebelumnya. SKU tidak ikut dikirim karena DTO update tidak menerima field tersebut."
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE Ingredient",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.environment.unset('ingredient_id');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/ingredients/{{ingredient_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ingredients",
+            "{{ingredient_id}}"
+          ]
+        },
+        "description": "Menghapus ingredient yang dibuat oleh flow QA ini. Jalankan di akhir tahap 02."
+      },
+      "response": []
+    }
+  ],
+  "event": [],
+  "variable": []
+}

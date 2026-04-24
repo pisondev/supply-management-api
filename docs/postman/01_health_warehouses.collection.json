@@ -1,0 +1,292 @@
+{
+  "info": {
+    "_postman_id": "ad486336-d0e9-4e28-8c98-c8fb34c29a31",
+    "name": "01 Health Warehouses",
+    "description": "Tahap 01 untuk QA: health check lalu CRUD warehouses. Jalankan request dari atas ke bawah.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET Health",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response status is success', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.status).to.eql('success');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
+        "description": "Memastikan service API berjalan normal."
+      },
+      "response": []
+    },
+    {
+      "name": "POST Create Warehouse",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now();",
+              "pm.environment.set('warehouse_name', `QA Warehouse ${suffix}`);",
+              "pm.environment.set('warehouse_location', `QA Location ${suffix}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "if (json && json.data && json.data.id) {",
+              "  pm.environment.set('warehouse_id', json.data.id);",
+              "}",
+              "",
+              "pm.test('Warehouse ID tersimpan', function () {",
+              "  pm.expect(pm.environment.get('warehouse_id')).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{warehouse_name}}\",\n  \"location\": \"{{warehouse_location}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_v1}}/warehouses",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "warehouses"
+          ]
+        },
+        "description": "Membuat warehouse baru untuk kebutuhan QA flow."
+      },
+      "response": []
+    },
+    {
+      "name": "GET All Warehouses",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response data exists', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/warehouses",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "warehouses"
+          ]
+        },
+        "description": "Mengambil seluruh data warehouse."
+      },
+      "response": []
+    },
+    {
+      "name": "GET Warehouse By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Warehouse sesuai ID yang disimpan', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(String(json.data.id)).to.eql(String(pm.environment.get('warehouse_id')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/warehouses/{{warehouse_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "warehouses",
+            "{{warehouse_id}}"
+          ]
+        },
+        "description": "Mengambil detail warehouse berdasarkan ID hasil create."
+      },
+      "response": []
+    },
+    {
+      "name": "PUT Update Warehouse",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now();",
+              "pm.environment.set('warehouse_updated_name', `QA Warehouse Updated ${suffix}`);",
+              "pm.environment.set('warehouse_updated_location', `QA Location Updated ${suffix}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Warehouse berhasil diupdate', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data.name).to.eql(pm.environment.get('warehouse_updated_name'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{warehouse_updated_name}}\",\n  \"location\": \"{{warehouse_updated_location}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_v1}}/warehouses/{{warehouse_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "warehouses",
+            "{{warehouse_id}}"
+          ]
+        },
+        "description": "Mengubah warehouse yang dibuat pada step sebelumnya."
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE Warehouse",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.environment.unset('warehouse_id');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{api_v1}}/warehouses/{{warehouse_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "warehouses",
+            "{{warehouse_id}}"
+          ]
+        },
+        "description": "Menghapus warehouse yang dibuat oleh flow QA ini. Jalankan di akhir tahap 01."
+      },
+      "response": []
+    }
+  ],
+  "event": [],
+  "variable": []
+}
